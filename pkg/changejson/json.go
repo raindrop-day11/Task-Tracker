@@ -8,13 +8,8 @@ import (
 	"os"
 )
 
-func Beauty() {
-	file, err := os.Open("task.json")
-	if err != nil {
-		fmt.Println("file can not open")
-		os.Exit(1)
-	}
-
+func Beauty(file *os.File) {
+	file.Seek(0, 0)
 	data, err1 := io.ReadAll(file)
 	if err1 != nil {
 		fmt.Println("file can not read")
@@ -22,7 +17,7 @@ func Beauty() {
 	}
 
 	var beautyJson bytes.Buffer
-	err = json.Indent(&beautyJson, data, "", "  ")
+	err := json.Indent(&beautyJson, data, "", "  ")
 	if err != nil {
 		fmt.Println("JSON can not beauty: ", err)
 		os.Exit(1)

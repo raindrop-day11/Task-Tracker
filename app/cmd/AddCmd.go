@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/count"
 	"time"
@@ -22,8 +21,5 @@ func HandleAdd(args []string) {
 	}
 
 	//将任务写入JSON
-	err := taskModel.WriteToJSON()
-	if err != nil {
-		fmt.Println("failed to write to json: ", err)
-	}
+	taskModel.AddToJSON()
 }
