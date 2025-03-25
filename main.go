@@ -4,13 +4,7 @@ import (
 	"fmt"
 	"os"
 	"task_tracker/app/cmd"
-	"task_tracker/app/cmd/mark"
-	cmdname "task_tracker/cmd"
 )
-
-func init() {
-	cmdname.Interlize()
-}
 
 func main() {
 
@@ -22,7 +16,9 @@ func main() {
 	case "Delete":
 		cmd.HandleDelete(os.Args[2:])
 	case "Mark":
-		mark.HandleMark(os.Args[2:])
+		cmd.HandleMark(os.Args[2:])
+	case "List":
+		cmd.HandleList(os.Args[2:])
 	default:
 		fmt.Println("please use right flag")
 	}

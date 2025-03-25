@@ -1,4 +1,4 @@
-package mark
+package cmd
 
 import (
 	"encoding/json"
@@ -10,7 +10,22 @@ import (
 	"time"
 )
 
-func MarkInProgress(idstr string) {
+func HandleMark(args []string) {
+	if len(args) != 2 {
+		fmt.Println("wrong number of parameters")
+		os.Exit(1)
+	}
+
+	if args[0] == "in-progress" || args[0] == "done" {
+		Mark(args)
+	} else {
+		fmt.Println("wrong input.only in-progress or done")
+	}
+}
+
+func Mark(args []string) {
+	status := args[0]
+	idstr := args[1]
 	id, _ := strconv.Atoi(idstr)
 
 	//打开文件
@@ -31,7 +46,7 @@ func MarkInProgress(idstr string) {
 	for i := 0; i < len(tasks); i++ {
 		if tasks[i].Id == int64(id) {
 			num = 1
-			tasks[i].Status = "in-progress"
+			tasks[i].Status = status
 			tasks[i].UpdatedAt = time.Now().Format("2006-01-02")
 			break
 		}
