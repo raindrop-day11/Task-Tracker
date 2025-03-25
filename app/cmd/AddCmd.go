@@ -2,32 +2,30 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/changejson"
+	"task_tracker/pkg/logger"
 	"time"
 )
 
 func HandleAdd(args []string) {
+	if len(args) != 2 {
+		logger.WarningExit("wrong number of parameters")
+	}
 	taskName := args[0]
 	description := args[1]
 
 	var tasks []task.Task
 	//打开文件
 	file, err := os.OpenFile("task.json", os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	logger.WarningExitIF("json file can not open", err)
 	defer file.Close()
 
 	//解码
-	dec := json.NewDecoder(file)
-	err = dec.Decode(&tasks)
+	err = json.NewDecoder(file).Decode(&tasks)
 	if err != nil && err.Error() != "EOF" {
-		fmt.Println(err)
-		os.Exit(1)
+		logger.ErrorExit(err)
 	}
 
 	//初始化任务模型
@@ -45,12 +43,8 @@ func HandleAdd(args []string) {
 	tasks = append(tasks, taskModel) //添加任务
 
 	//再次编码
-	enc := json.NewEncoder(file)
-	err = enc.Encode(tasks)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	err = json.NewEncoder(file).Encode(tasks)
+	logger.WarningExitIF("compilation failure", err)
 
 	//格式化
 	changejson.Beauty(file)

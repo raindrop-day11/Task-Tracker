@@ -2,24 +2,23 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strconv"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/changejson"
+	"task_tracker/pkg/logger"
 	"time"
 )
 
 func HandleMark(args []string) {
 	if len(args) != 2 {
-		fmt.Println("wrong number of parameters")
-		os.Exit(1)
+		logger.WarningExit("only done,todo or in-progress")
 	}
 
 	if args[0] == "in-progress" || args[0] == "done" {
 		Mark(args)
 	} else {
-		fmt.Println("wrong input.only in-progress or done")
+		logger.WarningExit("only done,todo or in-progress")
 	}
 }
 
@@ -30,17 +29,13 @@ func Mark(args []string) {
 
 	//打开文件
 	file, err := os.OpenFile("task.json", os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println("json file can not open")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("json file can not open", err)
+
 	//解码
 	var tasks []task.Task
 	err = json.NewDecoder(file).Decode(&tasks)
-	if err != nil {
-		fmt.Println("parsing failure")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("parsing failure", err)
+
 	//找到id的任务，更改状态
 	var num = 0
 	for i := 0; i < len(tasks); i++ {
@@ -52,19 +47,18 @@ func Mark(args []string) {
 		}
 	}
 	if num == 0 {
-		fmt.Println("task does not exist")
-		os.Exit(1)
+		logger.WarningExit("task does not exist")
 	}
+
 	//清空文件
 	os.Truncate("task.json", 0)
 	//指针回到开头
 	file.Seek(0, 0)
+
 	//编码写入
 	err = json.NewEncoder(file).Encode(tasks)
-	if err != nil {
-		fmt.Println("compilation failure")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("compilation failure", err)
+
 	//格式化
 	changejson.Beauty(file)
 }

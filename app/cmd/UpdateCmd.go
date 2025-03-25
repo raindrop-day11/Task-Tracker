@@ -2,18 +2,17 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strconv"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/changejson"
+	"task_tracker/pkg/logger"
 	"time"
 )
 
 func HandleUpdate(args []string) {
 	if len(args) != 3 {
-		fmt.Println("args count not right")
-		os.Exit(1)
+		logger.WarningExit("wrong number of parameters")
 	}
 	idstr := args[0]
 	id, _ := strconv.Atoi(idstr)
@@ -23,18 +22,12 @@ func HandleUpdate(args []string) {
 	//打开文件
 	var tasks []task.Task
 	file, err := os.OpenFile("task.json", os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println("file can not open")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("json file can not open", err)
 	defer file.Close()
 
 	//解码
 	err = json.NewDecoder(file).Decode(&tasks)
-	if err != nil {
-		fmt.Println("parsing failure")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("parsing failure", err)
 
 	//更新
 	var num = 0
@@ -48,8 +41,7 @@ func HandleUpdate(args []string) {
 		}
 	}
 	if num == 0 {
-		fmt.Println("task does not exist")
-		os.Exit(1)
+		logger.WarningExit("task does not exist")
 	}
 
 	//清除文件中的内容
@@ -59,10 +51,7 @@ func HandleUpdate(args []string) {
 
 	//编码
 	err = json.NewEncoder(file).Encode(tasks)
-	if err != nil {
-		fmt.Println("compilation failure")
-		os.Exit(1)
-	}
+	logger.WarningExitIF("compilation failure", err)
 
 	//格式化
 	changejson.Beauty(file)
