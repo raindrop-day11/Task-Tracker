@@ -7,43 +7,38 @@ import (
 	"strconv"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/changejson"
-	"time"
 )
 
-func HandleUpdate(args []string) {
-	if len(args) != 3 {
-		fmt.Println("args count not right")
+func HandleDelete(args []string) {
+	if len(args) != 1 {
+		fmt.Println("wrong number of parameters")
 		os.Exit(1)
 	}
 	idstr := args[0]
 	id, _ := strconv.Atoi(idstr)
-	taskname := args[1]
-	description := args[2]
 
 	//打开文件
-	var tasks []task.Task
 	file, err := os.OpenFile("task.json", os.O_RDWR, 0644)
 	if err != nil {
-		fmt.Println("file can not open")
+		fmt.Println("json can not open")
 		os.Exit(1)
 	}
 	defer file.Close()
 
-	//解码
+	//解析
+	var tasks []task.Task
 	err = json.NewDecoder(file).Decode(&tasks)
 	if err != nil {
 		fmt.Println("parsing failure")
 		os.Exit(1)
 	}
 
-	//更新
+	//删除
 	var num = 0
 	for i := 0; i < len(tasks); i++ {
 		if tasks[i].Id == int64(id) {
 			num = 1
-			tasks[i].TaskName = taskname
-			tasks[i].Decription = description
-			tasks[i].UpdatedAt = time.Now().Format("2006-01-02")
+			tasks = append(tasks[:i], tasks[i+1:]...)
 			break
 		}
 	}
@@ -52,9 +47,9 @@ func HandleUpdate(args []string) {
 		os.Exit(1)
 	}
 
-	//清除文件中的内容
+	//清空内容
 	os.Truncate("task.json", 0)
-	//将文件指针移动到开头
+	//指针移动到开头
 	file.Seek(0, 0)
 
 	//编码

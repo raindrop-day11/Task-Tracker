@@ -18,6 +18,8 @@ func main() {
 		cmd.HandleAdd(os.Args[2:])
 	case "Update":
 		cmd.HandleUpdate(os.Args[2:])
+	case "Delete":
+		cmd.HandleDelete(os.Args[2:])
 	default:
 		fmt.Println("please use right flag")
 	}
