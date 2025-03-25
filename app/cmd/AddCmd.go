@@ -6,23 +6,12 @@ import (
 	"os"
 	task "task_tracker/app/models/Task"
 	"task_tracker/pkg/changejson"
-	"task_tracker/pkg/count"
 	"time"
 )
 
 func HandleAdd(args []string) {
 	taskName := args[0]
 	description := args[1]
-
-	//初始化任务模型
-	var taskModel = task.Task{
-		Id:         count.Count() + 1,
-		TaskName:   taskName,
-		Decription: description,
-		Status:     "todo",
-		CreatedAt:  time.Now().Format("2006-01-02"),
-		UpdatedAt:  time.Now().Format("2006-01-02"),
-	}
 
 	var tasks []task.Task
 	//打开文件
@@ -39,6 +28,16 @@ func HandleAdd(args []string) {
 	if err != nil && err.Error() != "EOF" {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	//初始化任务模型
+	var taskModel = task.Task{
+		Id:         tasks[len(tasks)-1].Id + 1,
+		TaskName:   taskName,
+		Decription: description,
+		Status:     "todo",
+		CreatedAt:  time.Now().Format("2006-01-02"),
+		UpdatedAt:  time.Now().Format("2006-01-02"),
 	}
 
 	os.Truncate("task.json", 0)      //清空文件
